@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registrar Transacción</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Registrar Transacción</h1>
+        <form id="transactionForm">
+            <label for="phone_number">Número de teléfono:</label>
+            <input type="text" id="phone_number" name="phone_number" placeholder="10 dígitos" required>
+            <div id="phoneError" class="error"></div>
+
+            <label for="amount">Monto:</label>
+            <input type="number" id="amount" name="amount" placeholder="Monto en pesos" min="1" required>
+            <div id="amountError" class="error"></div>
+
+            <label for="company">Compañía:</label>
+            <select id="company" name="company" required>
+                <option value="uli">ULI</option>
+                <option value="g">G</option>
+                <option value="e">E</option>
+            </select>
+
+            <input type="submit" value="Registrar Transacción">
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
