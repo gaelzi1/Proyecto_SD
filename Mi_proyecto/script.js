@@ -3,7 +3,7 @@ document.getElementById('transactionForm').addEventListener('submit', function (
 
     // Obtener los valores de los campos
     const phone_number = document.getElementById('phone_number').value.trim();
-    const amount = document.getElementById('amount').value.trim();
+    const amount = parseFloat(document.getElementById('amount').value.trim());
     const company = document.getElementById('company').value.trim();
 
     // Limpiar mensajes de error
@@ -13,13 +13,16 @@ document.getElementById('transactionForm').addEventListener('submit', function (
     // Validaciones
     let hasError = false;
 
+    // Validar número de teléfono (10 dígitos)
     if (!/^\d{10}$/.test(phone_number)) {
         document.getElementById('phoneError').textContent = 'El número debe tener 10 dígitos.';
         hasError = true;
     }
 
-    if (isNaN(amount) || amount <= 0) {
-        document.getElementById('amountError').textContent = 'El monto debe ser mayor a 0.';
+    // Validar monto (solo permitir montos específicos)
+    const validAmounts = [20.0, 30.0, 50.0, 100.0, 200.0];
+    if (!validAmounts.includes(amount)) {
+        document.getElementById('amountError').textContent = 'El monto debe ser uno de los siguientes: $20.00, $30.00, $50.00, $100.00 o $200.00.';
         hasError = true;
     }
 
@@ -28,7 +31,7 @@ document.getElementById('transactionForm').addEventListener('submit', function (
     // Crear el objeto de datos
     const data = {
         phone_number: phone_number,
-        amount: parseFloat(amount)
+        amount: amount
     };
 
     // Construir la URL dinámica basada en la compañía seleccionada
