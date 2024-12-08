@@ -15,7 +15,15 @@
             <div id="phoneError" class="error"></div>
 
             <label for="amount">Monto:</label>
-            <input type="number" id="amount" name="amount" placeholder="Monto en pesos" min="1" required>
+            <!-- Usar datalist para limitar opciones de monto -->
+            <input type="number" id="amount" name="amount" placeholder="Monto en pesos" min="1" required list="amounts">
+            <datalist id="amounts">
+                <option value="20.00">
+                <option value="30.00">
+                <option value="50.00">
+                <option value="100.00">
+                <option value="200.00">
+            </datalist>
             <div id="amountError" class="error"></div>
 
             <label for="company">Compañía:</label>
@@ -32,4 +40,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
