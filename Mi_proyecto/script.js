@@ -3,7 +3,7 @@ document.getElementById('transactionForm').addEventListener('submit', function (
 
     // Obtener los valores de los campos
     const phone_number = document.getElementById('phone_number').value.trim();
-    const amount = parseFloat(document.getElementById('amount').value.trim());
+    const amount = document.getElementById('amount').value.trim();
     const company = document.getElementById('company').value.trim();
 
     // Limpiar mensajes de error
@@ -13,16 +13,14 @@ document.getElementById('transactionForm').addEventListener('submit', function (
     // Validaciones
     let hasError = false;
 
-    // Validar número de teléfono (10 dígitos)
     if (!/^\d{10}$/.test(phone_number)) {
         document.getElementById('phoneError').textContent = 'El número debe tener 10 dígitos.';
         hasError = true;
     }
 
-    // Validar monto (solo permitir montos específicos)
-    const validAmounts = [20.0, 30.0, 50.0, 100.0, 200.0];
-    if (!validAmounts.includes(amount)) {
-        document.getElementById('amountError').textContent = 'El monto debe ser uno de los siguientes: $20.00, $30.00, $50.00, $100.00 o $200.00.';
+    const validAmounts = [20, 30, 50, 100, 200];
+    if (!validAmounts.includes(parseFloat(amount))) {
+        document.getElementById('amountError').textContent = 'El monto debe ser uno de los valores permitidos: 20, 30, 50, 100, 200.';
         hasError = true;
     }
 
@@ -31,7 +29,9 @@ document.getElementById('transactionForm').addEventListener('submit', function (
     // Crear el objeto de datos
     const data = {
         phone_number: phone_number,
-        amount: amount
+        amount: parseFloat(amount),
+        company: company,
+        timestamp: new Date().toISOString(),
     };
 
     // Construir la URL dinámica basada en la compañía seleccionada
@@ -46,10 +46,13 @@ document.getElementById('transactionForm').addEventListener('submit', function (
         case 'e':
             baseUrl = 'http://127.0.0.1:5002';
             break;
+        case 'minisuper':
+            baseUrl = 'http://127.0.0.1:5003';
+            break;
     }
-    const url = `${baseUrl}/transactions`;
+    const url = `${baseUrl}/register`;
 
-    // Enviar la solicitud a la API
+    // Enviar la solicitud a la API principal
     fetch(url, {
         method: 'POST',
         headers: {
@@ -63,13 +66,35 @@ document.getElementById('transactionForm').addEventListener('submit', function (
             }
             return response.json();
         })
-        .then((data) => {
-            alert(`Transacción exitosa!\nID: ${data.transaction_id}\nComisión: ${data.commission}`);
+        .then((transactionData) => {
+            alert(`Transacción exitosa!\nID: ${transactionData.transaction_id}`);
+            
+            // Registrar el movimiento en la API de movimientos
+            return fetch('http://127.0.0.1:5002/log-movement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    api_name: company,
+                    action: 'create_transaction',
+                    details: `Transaction ID: ${transactionData.transaction_id}, Amount: ${transactionData.amount}`
+                }),
+            });
+        })
+        .then((movementResponse) => {
+            if (!movementResponse.ok) {
+                throw new Error('Error al registrar el movimiento');
+            }
+            return movementResponse.json();
+        })
+        .then((movementData) => {
+            console.log('Movimiento registrado exitosamente:', movementData);
             // Limpiar el formulario después del envío exitoso
             document.getElementById('transactionForm').reset();
         })
         .catch((error) => {
             console.error('Error:', error);
-            alert('Ocurrió un error al enviar la transacción. Por favor, intenta de nuevo.');
+            alert('Ocurrió un error al procesar la transacción o registrar el movimiento. Por favor, intenta de nuevo.');
         });
 });
